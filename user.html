@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Notices - Virtual Notice Board</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Virtual Notice Board</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="user.html" class="active">Notices</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1><i class="fas fa-clipboard-list"></i> Notice Board</h1>
+            <p>Stay updated with all college announcements</p>
+        </div>
+    </div>
+
+    <!-- Notices Section -->
+    <section class="notices-section">
+        <div class="container">
+            <!-- Search and Filter Bar -->
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search notices...">
+                </div>
+                
+                <div class="filter-controls">
+                    <select id="sectionFilter" class="filter-select">
+                        <option value="all">All Sections</option>
+                        <option value="examination">Examination</option>
+                        <option value="scholarship">Scholarship</option>
+                        <option value="academics">Academics</option>
+                        <option value="events">Events</option>
+                        <option value="placement">Placement</option>
+                    </select>
+
+                    <select id="importanceFilter" class="filter-select">
+                        <option value="all">All Notices</option>
+                        <option value="important">Important Only</option>
+                        <option value="regular">Regular Only</option>
+                    </select>
+
+                    <select id="statusFilter" class="filter-select">
+                        <option value="active">Active Notices</option>
+                        <option value="all">All Notices</option>
+                        <option value="expired">Expired Notices</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="notice-stats">
+                <div class="stat-item">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Total: <strong id="totalCount">0</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Important: <strong id="importantCount">0</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Active: <strong id="activeCount">0</strong></span>
+                </div>
+            </div>
+
+            <!-- Important Notices Section -->
+            <div id="importantNoticesSection" class="notices-grid-section">
+                <h2 class="section-heading">
+                    <i class="fas fa-star"></i> Important Notices
+                </h2>
+                <div id="importantNoticesGrid" class="notices-grid">
+                    <!-- Important notices will be populated here -->
+                </div>
+            </div>
+
+            <!-- All Notices Section -->
+            <div class="notices-grid-section">
+                <h2 class="section-heading">
+                    <i class="fas fa-clipboard-list"></i> All Notices
+                </h2>
+                <div id="allNoticesGrid" class="notices-grid">
+                    <!-- All notices will be populated here -->
+                </div>
+            </div>
+
+            <!-- No Results Message -->
+            <div id="noResults" class="no-results" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h3>No notices found</h3>
+                <p>Try adjusting your search or filter criteria</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notice Details Modal -->
+    <div id="noticeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="modalContent">
+                <!-- Notice details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Virtual College Notice Board System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Notice viewing and filtering logic
+        document.addEventListener('DOMContentLoaded', function() {
+            let allNotices = [];
+            let filteredNotices = [];
+
+            // Load notices from localStorage or use dummy data
+            loadNotices();
+
+            // Event listeners
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('sectionFilter').addEventListener('change', applyFilters);
+            document.getElementById('importanceFilter').addEventListener('change', applyFilters);
+            document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+            // Modal functionality
+            const modal = document.getElementById('noticeModal');
+            const closeModal = document.querySelector('.close-modal');
+            closeModal.onclick = function() {
+                modal.style.display = 'none';
+            };
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            };
+
+            // Functions
+            function loadNotices() {
+                // Get notices from localStorage or use comprehensive dummy data
+                allNotices = JSON.parse(localStorage.getItem('notices')) || getDummyNotices();
+                
+                // Save dummy notices if none exist
+                if (!localStorage.getItem('notices')) {
+                    localStorage.setItem('notices', JSON.stringify(allNotices));
+                }
+
+                applyFilters();
+            }
+
+            function getDummyNotices() {
+                return [
+                    {
+                        id: 1,
+                        title: 'Mid-Term Examination Schedule Released',
+                        description: 'The mid-term examination schedule for all departments has been released. Students are advised to check their respective department notice boards for detailed timetables. The exams will commence from February 20, 2024. Students must carry their ID cards and admit cards to the examination hall.',
+                        section: 'examination',
+                        postedDate: '2024-01-15',
+                        expiryDate: '2024-02-15',
+                        isImportant: true
+                    },
+                    {
+                        id: 2,
+                        title: 'National Scholarship Portal Now Open',
+                        description: 'Students from economically weaker sections can now apply for national scholarships through the official portal. Last date for submission is February 28, 2024. Required documents include income certificate, academic transcripts, and bank details. Contact the scholarship cell for assistance.',
+                        section: 'scholarship',
+                        postedDate: '2024-01-20',
+                        expiryDate: '2024-02-28',
+                        isImportant: true
+                    },
+                    {
+                        id: 3,
+                        title: 'Academic Calendar for Spring Semester',
+                        description: 'The academic calendar for the spring semester 2024 has been published. Classes will commence from March 1, 2024. The semester will run for 16 weeks with mid-term exams scheduled in week 8. Students can download the complete calendar from the college website.',
+                        section: 'academics',
+                        postedDate: '2024-01-18',
+                        expiryDate: '2024-03-01',
+                        isImportant: false
+                    },
+                    {
+                        id: 4,
+                        title: 'Annual Cultural Fest - Technova 2024',
+                        description: 'Registration for Technova 2024, our annual cultural and technical fest, is now open. Multiple events including coding competitions, dance, music, and drama. Prize money worth Rs. 2 lakhs. Register before February 15, 2024. Visit the student activity center for more details.',
+                        section: 'events',
+                        postedDate: '2024-01-22',
+                        expiryDate: '2024-03-15',
+                        isImportant: true
+                    },
+                    {
+                        id: 5,
+                        title: 'Campus Placement Drive - TCS',
+                        description: 'Tata Consultancy Services will be conducting a campus placement drive for final year students on February 5, 2024. Eligible students must register by January 30, 2024. Package offered: 3.6 LPA. Minimum 60% required in all semesters. Contact the placement cell for registration.',
+                        section: 'placement',
+                        postedDate: '2024-01-25',
+                        expiryDate: '2024-01-30',
+                        isImportant: true
+                    },
+                    {
+                        id: 6,
+                        title: 'Semester Exam Results - December 2023',
+                        description: 'The results for December 2023 semester examinations have been published on the college portal. Students can check their results using their registration number and date of birth. Revaluation applications can be submitted till February 10, 2024.',
+                        section: 'examination',
+                        postedDate: '2024-01-28',
+                        expiryDate: '2024-02-10',
+                        isImportant: false
+                    },
+                    {
+                        id: 7,
+                        title: 'Merit Scholarship Application Deadline Extended',
+                        description: 'The deadline for merit-based scholarship applications has been extended to February 20, 2024. Students with CGPA above 8.5 are eligible to apply. Application forms are available at the accounts office. Supporting documents required.',
+                        section: 'scholarship',
+                        postedDate: '2024-01-26',
+                        expiryDate: '2024-02-20',
+                        isImportant: false
+                    },
+                    {
+                        id: 8,
+                        title: 'Workshop on Machine Learning and AI',
+                        description: 'Department of Computer Science is organizing a 3-day workshop on Machine Learning and Artificial Intelligence from February 12-14, 2024. Industry experts will be conducting hands-on sessions. Limited seats available. Register at the CS department office.',
+                        section: 'academics',
+                        postedDate: '2024-01-23',
+                        expiryDate: '2024-02-12',
+                        isImportant: true
+                    },
+                    {
+                        id: 9,
+                        title: 'Sports Day 2024 - Registration Open',
+                        description: 'Annual Sports Day will be held on March 10, 2024. Students can register for various events including athletics, cricket, football, basketball, and volleyball. Registration deadline: February 25, 2024. Contact the sports coordinator for details.',
+                        section: 'events',
+                        postedDate: '2024-01-24',
+                        expiryDate: '2024-02-25',
+                        isImportant: false
+                    },
+                    {
+                        id: 10,
+                        title: 'Internship Opportunities at Infosys',
+                        description: 'Infosys is offering summer internship opportunities for pre-final year students. Duration: 2 months. Stipend: Rs. 15,000/month. Application deadline: February 5, 2024. Apply through the placement portal with your updated resume.',
+                        section: 'placement',
+                        postedDate: '2024-01-27',
+                        expiryDate: '2024-02-05',
+                        isImportant: false
+                    },
+                    {
+                        id: 11,
+                        title: 'Library Extended Hours During Exams',
+                        description: 'The college library will remain open from 7 AM to 11 PM during the examination period (Feb 15 - March 15). Students must follow all library rules and maintain silence. ID cards are mandatory for entry.',
+                        section: 'academics',
+                        postedDate: '2024-01-10',
+                        expiryDate: '2024-01-25',
+                        isImportant: false
+                    },
+                    {
+                        id: 12,
+                        title: 'Blood Donation Camp - February 8',
+                        description: 'NSS unit is organizing a blood donation camp in association with Red Cross Society on February 8, 2024. Venue: College Auditorium, Time: 9 AM - 4 PM. All healthy students above 18 years are encouraged to participate. Refreshments will be provided.',
+                        section: 'events',
+                        postedDate: '2024-01-12',
+                        expiryDate: '2024-01-20',
+                        isImportant: false
+                    }
+                ];
+            }
+
+            function applyFilters() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const sectionFilter = document.getElementById('sectionFilter').value;
+                const importanceFilter = document.getElementById('importanceFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                filteredNotices = allNotices.filter(notice => {
+                    // Search filter
+                    const matchesSearch = notice.title.toLowerCase().includes(searchTerm) ||
+                                        notice.description.toLowerCase().includes(searchTerm);
+
+                    // Section filter
+                    const matchesSection = sectionFilter === 'all' || notice.section === sectionFilter;
+
+                    // Importance filter
+                    const matchesImportance = importanceFilter === 'all' ||
+                                            (importanceFilter === 'important' && notice.isImportant) ||
+                                            (importanceFilter === 'regular' && !notice.isImportant);
+
+                    // Status filter
+                    const isExpired = new Date(notice.expiryDate) < today;
+                    const matchesStatus = statusFilter === 'all' ||
+                                        (statusFilter === 'active' && !isExpired) ||
+                                        (statusFilter === 'expired' && isExpired);
+
+                    return matchesSearch && matchesSection && matchesImportance && matchesStatus;
+                });
+
+                displayNotices();
+                updateStats();
+            }
+
+            function displayNotices() {
+                const importantGrid = document.getElementById('importantNoticesGrid');
+                const allGrid = document.getElementById('allNoticesGrid');
+                const importantSection = document.getElementById('importantNoticesSection');
+                const noResults = document.getElementById('noResults');
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                // Filter important and active notices
+                const importantNotices = filteredNotices.filter(n => n.isImportant && new Date(n.expiryDate) >= today);
+                const regularNotices = filteredNotices.filter(n => !n.isImportant || new Date(n.expiryDate) < today);
+
+                if (filteredNotices.length === 0) {
+                    importantSection.style.display = 'none';
+                    allGrid.innerHTML = '';
+                    noResults.style.display = 'block';
+                    return;
+                }
+
+                noResults.style.display = 'none';
+
+                // Display important notices
+                if (importantNotices.length > 0) {
+                    importantSection.style.display = 'block';
+                    importantGrid.innerHTML = importantNotices.map(createNoticeCard).join('');
+                } else {
+                    importantSection.style.display = 'none';
+                }
+
+                // Display all notices
+                allGrid.innerHTML = regularNotices.length > 0 
+                    ? regularNotices.map(createNoticeCard).join('')
+                    : '<p class="no-notices">No notices to display</p>';
+            }
+
+            function createNoticeCard(notice) {
+                const isExpired = new Date(notice.expiryDate) < new Date();
+                const sectionIcons = {
+                    'examination': 'fa-file-alt',
+                    'scholarship': 'fa-graduation-cap',
+                    'academics': 'fa-book',
+                    'events': 'fa-calendar-alt',
+                    'placement': 'fa-briefcase'
+                };
+
+                const expiredClass = isExpired ? 'notice-expired' : '';
+                const importantClass = notice.isImportant ? 'notice-important' : '';
+
+                return `
+                    <div class="notice-card ${expiredClass} ${importantClass}" onclick="showNoticeDetails(${notice.id})">
+                        ${notice.isImportant && !isExpired ? '<div class="important-badge"><i class="fas fa-star"></i> Important</div>' : ''}
+                        ${isExpired ? '<div class="expired-badge"><i class="fas fa-clock"></i> Expired</div>' : ''}
+                        
+                        <div class="notice-header">
+                            <h3>${notice.title}</h3>
+                            <div class="notice-meta">
+                                <span class="notice-section">
+                                    <i class="fas ${sectionIcons[notice.section]}"></i>
+                                    ${capitalizeFirst(notice.section)}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="notice-body">
+                            <p>${truncateText(notice.description, 120)}</p>
+                        </div>
+                        
+                        <div class="notice-footer">
+                            <div class="notice-dates">
+                                <span><i class="fas fa-calendar"></i> ${formatDate(notice.postedDate)}</span>
+                                <span><i class="fas fa-clock"></i> Expires: ${formatDate(notice.expiryDate)}</span>
+                            </div>
+                            <button class="btn-link">Read More <i class="fas fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function updateStats() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const total = filteredNotices.length;
+                const important = filteredNotices.filter(n => n.isImportant).length;
+                const active = filteredNotices.filter(n => new Date(n.expiryDate) >= today).length;
+
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('importantCount').textContent = important;
+                document.getElementById('activeCount').textContent = active;
+            }
+
+            function capitalizeFirst(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            function truncateText(text, maxLength) {
+                if (text.length <= maxLength) return text;
+                return text.substr(0, maxLength) + '...';
+            }
+
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            }
+
+            // Make showNoticeDetails globally accessible
+            window.showNoticeDetails = function(noticeId) {
+                const notice = allNotices.find(n => n.id === noticeId);
+                if (!notice) return;
+
+                const isExpired = new Date(notice.expiryDate) < new Date();
+                const sectionIcons = {
+                    'examination': 'fa-file-alt',
+                    'scholarship': 'fa-graduation-cap',
+                    'academics': 'fa-book',
+                    'events': 'fa-calendar-alt',
+                    'placement': 'fa-briefcase'
+                };
+
+                const modalContent = document.getElementById('modalContent');
+                modalContent.innerHTML = `
+                    <div class="modal-header">
+                        ${notice.isImportant && !isExpired ? '<span class="modal-badge important"><i class="fas fa-star"></i> Important</span>' : ''}
+                        ${isExpired ? '<span class="modal-badge expired"><i class="fas fa-clock"></i> Expired</span>' : ''}
+                    </div>
+                    <h2>${notice.title}</h2>
+                    <div class="modal-meta">
+                        <span class="modal-section">
+                            <i class="fas ${sectionIcons[notice.section]}"></i>
+                            ${capitalizeFirst(notice.section)}
+                        </span>
+                        <span><i class="fas fa-calendar"></i> Posted: ${formatDate(notice.postedDate)}</span>
+                        <span><i class="fas fa-clock"></i> Expires: ${formatDate(notice.expiryDate)}</span>
+                    </div>
+                    <div class="modal-description">
+                        <p>${notice.description}</p>
+                    </div>
+                `;
+
+                modal.style.display = 'block';
+            };
+        });
+    </script>
+</body>
+</html>

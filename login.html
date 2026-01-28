@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Virtual Notice Board</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Virtual Notice Board</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="user.html">Notices</a></li>
+                <li><a href="login.html" class="active">Login</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <section class="login-section">
+        <div class="container">
+            <div class="login-container">
+                <div class="login-header">
+                    <i class="fas fa-user-circle"></i>
+                    <h2>Admin Login</h2>
+                    <p>Sign in to manage notices</p>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="login-form">
+                    <!-- Role Selection -->
+                    <div class="form-group">
+                        <label for="userRole">
+                            <i class="fas fa-user-tag"></i> Select Role
+                        </label>
+                        <select id="userRole" name="userRole" required>
+                            <option value="">Choose your role...</option>
+                            <option value="super-admin">Super Admin</option>
+                            <option value="section-admin">Section Admin</option>
+                        </select>
+                    </div>
+
+                    <!-- Section Selection (for Section Admin) -->
+                    <div class="form-group" id="sectionGroup" style="display: none;">
+                        <label for="section">
+                            <i class="fas fa-layer-group"></i> Section
+                        </label>
+                        <select id="section" name="section">
+                            <option value="">Select section...</option>
+                            <option value="examination">Examination</option>
+                            <option value="scholarship">Scholarship</option>
+                            <option value="academics">Academics</option>
+                            <option value="events">Events</option>
+                            <option value="placement">Placement</option>
+                        </select>
+                    </div>
+
+                    <!-- Username -->
+                    <div class="form-group">
+                        <label for="username">
+                            <i class="fas fa-user"></i> Username
+                        </label>
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="rememberMe" name="rememberMe">
+                            <span>Remember me</span>
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </form>
+
+                <!-- Demo Credentials -->
+                <div class="demo-credentials">
+                    <h4><i class="fas fa-info-circle"></i> Demo Credentials</h4>
+                    <div class="credentials-grid">
+                        <div class="credential-item">
+                            <strong>Super Admin:</strong>
+                            <p>Username: superadmin</p>
+                            <p>Password: admin123</p>
+                        </div>
+                        <div class="credential-item">
+                            <strong>Section Admin:</strong>
+                            <p>Username: sectionadmin</p>
+                            <p>Password: admin123</p>
+                            <p><small>(Select any section)</small></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Back to Home -->
+                <div class="login-footer">
+                    <a href="index.html" class="back-link">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Virtual College Notice Board System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Login form handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const userRoleSelect = document.getElementById('userRole');
+            const sectionGroup = document.getElementById('sectionGroup');
+            const sectionSelect = document.getElementById('section');
+
+            // Show/hide section dropdown based on role selection
+            userRoleSelect.addEventListener('change', function() {
+                if (this.value === 'section-admin') {
+                    sectionGroup.style.display = 'block';
+                    sectionSelect.required = true;
+                } else {
+                    sectionGroup.style.display = 'none';
+                    sectionSelect.required = false;
+                }
+            });
+
+            // Handle form submission
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const role = userRoleSelect.value;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const section = sectionSelect.value;
+
+                // Simple validation (for demo purposes)
+                if (role === 'super-admin' && username === 'superadmin' && password === 'admin123') {
+                    // Store session data
+                    sessionStorage.setItem('userRole', 'super-admin');
+                    sessionStorage.setItem('username', username);
+                    // Redirect to super admin dashboard
+                    window.location.href = 'admin.html';
+                } else if (role === 'section-admin' && username === 'sectionadmin' && password === 'admin123' && section) {
+                    // Store session data
+                    sessionStorage.setItem('userRole', 'section-admin');
+                    sessionStorage.setItem('username', username);
+                    sessionStorage.setItem('section', section);
+                    // Redirect to section admin dashboard
+                    window.location.href = 'section-admin.html';
+                } else {
+                    alert('Invalid credentials! Please use the demo credentials provided.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

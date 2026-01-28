@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-admin">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Section Admin Panel</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="section-admin.html" class="active">Dashboard</a></li>
+                <li><a href="user.html">View Notices</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+            <div class="user-info">
+                <i class="fas fa-user-tie"></i>
+                <span id="adminName">Section Admin</span>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="active">
+                    <a href="#dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="addNoticeBtn">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add Notice</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#my-notices">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>My Notices</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#archived">
+                        <i class="fas fa-archive"></i>
+                        <span>Archived</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1>Welcome, <span id="sectionName">Section</span> Admin!</h1>
+                <p>Manage your section notices effectively</p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalNotices">0</h3>
+                        <p>Total Notices</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="activeNotices">0</h3>
+                        <p>Active Notices</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="importantNotices">0</h3>
+                        <p>Important</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="expiredNotices">0</h3>
+                        <p>Expired</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add/Edit Notice Form -->
+            <div id="noticeFormSection" class="dashboard-section" style="display: none;">
+                <h2><i class="fas fa-edit"></i> <span id="formTitle">Add New Notice</span></h2>
+                <form id="noticeForm" class="notice-form">
+                    <input type="hidden" id="noticeId" name="noticeId">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="noticeTitle">
+                                <i class="fas fa-heading"></i> Notice Title *
+                            </label>
+                            <input type="text" id="noticeTitle" name="noticeTitle" placeholder="Enter notice title" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="noticeDescription">
+                                <i class="fas fa-align-left"></i> Description *
+                            </label>
+                            <textarea id="noticeDescription" name="noticeDescription" rows="5" placeholder="Enter detailed description" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="noticeSection">
+                                <i class="fas fa-layer-group"></i> Section
+                            </label>
+                            <input type="text" id="noticeSection" name="noticeSection" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="expiryDate">
+                                <i class="fas fa-calendar-alt"></i> Expiry Date *
+                            </label>
+                            <input type="date" id="expiryDate" name="expiryDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="isImportant" name="isImportant">
+                                <span><i class="fas fa-star"></i> Mark as Important</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> <span id="submitBtnText">Save Notice</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="cancelFormBtn">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- My Notices List -->
+            <div id="noticesListSection" class="dashboard-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-clipboard-list"></i> My Notices</h2>
+                    <button class="btn btn-primary" id="addNoticeBtn2">
+                        <i class="fas fa-plus"></i> Add Notice
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="admin-table" id="noticesTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Posted Date</th>
+                                <th>Expiry Date</th>
+                                <th>Status</th>
+                                <th>Important</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="noticesTableBody">
+                            <!-- Notices will be populated here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Notice management for section admin
+        document.addEventListener('DOMContentLoaded', function() {
+            const userRole = sessionStorage.getItem('userRole');
+            const username = sessionStorage.getItem('username');
+            const section = sessionStorage.getItem('section');
+
+            // Check authentication
+            if (userRole !== 'section-admin') {
+                alert('Access denied! Please login as Section Admin.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Display user info
+            if (username) {
+                document.getElementById('adminName').textContent = username;
+            }
+            if (section) {
+                document.getElementById('sectionName').textContent = section.charAt(0).toUpperCase() + section.slice(1);
+                document.getElementById('noticeSection').value = section.charAt(0).toUpperCase() + section.slice(1);
+            }
+
+            // Load notices from localStorage or use dummy data
+            let notices = JSON.parse(localStorage.getItem('notices')) || getDummyNotices(section);
+            
+            // Save dummy notices if none exist
+            if (!localStorage.getItem('notices')) {
+                localStorage.setItem('notices', JSON.stringify(notices));
+            }
+
+            // Update statistics
+            updateStatistics();
+
+            // Display notices
+            displayNotices();
+
+            // Event listeners
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            document.getElementById('addNoticeBtn').addEventListener('click', showNoticeForm);
+            document.getElementById('addNoticeBtn2').addEventListener('click', showNoticeForm);
+            document.getElementById('cancelFormBtn').addEventListener('click', hideNoticeForm);
+            document.getElementById('noticeForm').addEventListener('submit', handleFormSubmit);
+
+            // Functions
+            function getDummyNotices(section) {
+                const baseNotices = [
+                    {
+                        id: 1,
+                        title: 'Mid-Term Examination Schedule Released',
+                        description: 'The mid-term examination schedule for all departments has been released. Students are advised to check their respective department notice boards for detailed timetables.',
+                        section: 'examination',
+                        postedDate: '2024-01-15',
+                        expiryDate: '2024-02-15',
+                        isImportant: true
+                    },
+                    {
+                        id: 2,
+                        title: 'National Scholarship Portal Now Open',
+                        description: 'Students from economically weaker sections can now apply for national scholarships through the official portal. Last date for submission is February 28, 2024.',
+                        section: 'scholarship',
+                        postedDate: '2024-01-20',
+                        expiryDate: '2024-02-28',
+                        isImportant: true
+                    },
+                    {
+                        id: 3,
+                        title: 'Academic Calendar for Spring Semester',
+                        description: 'The academic calendar for the spring semester 2024 has been published. Classes will commence from March 1, 2024.',
+                        section: 'academics',
+                        postedDate: '2024-01-18',
+                        expiryDate: '2024-03-01',
+                        isImportant: false
+                    },
+                    {
+                        id: 4,
+                        title: 'Annual Cultural Fest - Technova 2024',
+                        description: 'Registration for Technova 2024, our annual cultural and technical fest, is now open. Multiple events including coding competitions, dance, music, and drama.',
+                        section: 'events',
+                        postedDate: '2024-01-22',
+                        expiryDate: '2024-03-15',
+                        isImportant: true
+                    },
+                    {
+                        id: 5,
+                        title: 'Campus Placement Drive - TCS',
+                        description: 'Tata Consultancy Services will be conducting a campus placement drive for final year students. Eligible students must register by January 30, 2024.',
+                        section: 'placement',
+                        postedDate: '2024-01-25',
+                        expiryDate: '2024-01-30',
+                        isImportant: true
+                    }
+                ];
+
+                return baseNotices.filter(notice => notice.section === section);
+            }
+
+            function updateStatistics() {
+                const sectionNotices = notices.filter(n => n.section === section);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const total = sectionNotices.length;
+                const active = sectionNotices.filter(n => new Date(n.expiryDate) >= today).length;
+                const important = sectionNotices.filter(n => n.isImportant).length;
+                const expired = sectionNotices.filter(n => new Date(n.expiryDate) < today).length;
+
+                document.getElementById('totalNotices').textContent = total;
+                document.getElementById('activeNotices').textContent = active;
+                document.getElementById('importantNotices').textContent = important;
+                document.getElementById('expiredNotices').textContent = expired;
+            }
+
+            function displayNotices() {
+                const tbody = document.getElementById('noticesTableBody');
+                const sectionNotices = notices.filter(n => n.section === section);
+                
+                if (sectionNotices.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center">No notices found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = sectionNotices.map(notice => {
+                    const isExpired = new Date(notice.expiryDate) < new Date();
+                    const statusBadge = isExpired 
+                        ? '<span class="badge badge-secondary">Expired</span>'
+                        : '<span class="badge badge-success">Active</span>';
+                    const importantBadge = notice.isImportant
+                        ? '<i class="fas fa-star" style="color: #f39c12;"></i>'
+                        : '-';
+
+                    return `
+                        <tr>
+                            <td>${notice.title}</td>
+                            <td>${formatDate(notice.postedDate)}</td>
+                            <td>${formatDate(notice.expiryDate)}</td>
+                            <td>${statusBadge}</td>
+                            <td>${importantBadge}</td>
+                            <td>
+                                <button class="btn-icon" onclick="editNotice(${notice.id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-danger" onclick="deleteNotice(${notice.id})" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            }
+
+            function showNoticeForm() {
+                document.getElementById('noticeFormSection').style.display = 'block';
+                document.getElementById('noticesListSection').style.display = 'none';
+                document.getElementById('formTitle').textContent = 'Add New Notice';
+                document.getElementById('submitBtnText').textContent = 'Save Notice';
+                document.getElementById('noticeForm').reset();
+                document.getElementById('noticeId').value = '';
+                document.getElementById('noticeSection').value = section.charAt(0).toUpperCase() + section.slice(1);
+            }
+
+            function hideNoticeForm() {
+                document.getElementById('noticeFormSection').style.display = 'none';
+                document.getElementById('noticesListSection').style.display = 'block';
+            }
+
+            function handleFormSubmit(e) {
+                e.preventDefault();
+
+                const noticeId = document.getElementById('noticeId').value;
+                const title = document.getElementById('noticeTitle').value;
+                const description = document.getElementById('noticeDescription').value;
+                const expiryDate = document.getElementById('expiryDate').value;
+                const isImportant = document.getElementById('isImportant').checked;
+
+                if (noticeId) {
+                    // Edit existing notice
+                    const index = notices.findIndex(n => n.id === parseInt(noticeId));
+                    if (index !== -1) {
+                        notices[index] = {
+                            ...notices[index],
+                            title,
+                            description,
+                            expiryDate,
+                            isImportant
+                        };
+                    }
+                } else {
+                    // Add new notice
+                    const newNotice = {
+                        id: Date.now(),
+                        title,
+                        description,
+                        section,
+                        postedDate: new Date().toISOString().split('T')[0],
+                        expiryDate,
+                        isImportant
+                    };
+                    notices.push(newNotice);
+                }
+
+                // Save to localStorage
+                localStorage.setItem('notices', JSON.stringify(notices));
+
+                // Update UI
+                updateStatistics();
+                displayNotices();
+                hideNoticeForm();
+
+                alert('Notice saved successfully!');
+            }
+
+            // Make functions globally accessible
+            window.editNotice = function(id) {
+                const notice = notices.find(n => n.id === id);
+                if (notice) {
+                    document.getElementById('noticeId').value = notice.id;
+                    document.getElementById('noticeTitle').value = notice.title;
+                    document.getElementById('noticeDescription').value = notice.description;
+                    document.getElementById('expiryDate').value = notice.expiryDate;
+                    document.getElementById('isImportant').checked = notice.isImportant;
+                    
+                    document.getElementById('formTitle').textContent = 'Edit Notice';
+                    document.getElementById('submitBtnText').textContent = 'Update Notice';
+                    showNoticeForm();
+                }
+            };
+
+            window.deleteNotice = function(id) {
+                if (confirm('Are you sure you want to delete this notice?')) {
+                    notices = notices.filter(n => n.id !== id);
+                    localStorage.setItem('notices', JSON.stringify(notices));
+                    updateStatistics();
+                    displayNotices();
+                    alert('Notice deleted successfully!');
+                }
+            };
+
+            function handleLogout(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    sessionStorage.clear();
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
